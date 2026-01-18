@@ -232,6 +232,36 @@ function appendNewLines(message) {
 		return;
 	}
 
+	console.log(`[appendNewLines] Received ${newLines.length} new lines, totalLines=${totalLines}, matchedLines=${matchedLines}`);
+
+	// 检查是否有过滤规则应用
+	const hasActiveFilter = filterState.filterRegex.length > 0 || 
+	                        filterState.invertFilterRegex.length > 0 ||
+	                        filterState.highlightRegex.length > 0;
+
+	// 如果有过滤规则应用，需要重新应用过滤以保持一致性
+	if (hasActiveFilter) {
+		console.log('[appendNewLines] Active filter detected, re-applying filter to maintain consistency...');
+		// 发送重新应用过滤的请求到后端
+		vscode.postMessage({
+			type: 'applyFilter',
+			filterRegex: filterState.filterRegex,
+			useInvertFilter: filterState.useInvertFilter,
+			invertFilterRegex: filterState.invertFilterRegex,
+			useHighlightFilter: filterState.useHighlightFilter,
+			highlightRegex: filterState.highlightRegex,
+			controlsPanelCollapsed: filterState.controlsPanelCollapsed,
+			virtualScrollEnabled: filterState.virtualScrollEnabled,
+			itemHeight: filterState.itemHeight,
+			bufferSize: filterState.bufferSize,
+			visibleLines: filterState.visibleLines
+		});
+		return;
+	}
+
+	// 没有过滤规则，直接追加新行
+	console.log('[appendNewLines] No active filter, appending new lines directly...');
+	
 	// 更新统计信息
 	const statsText = `总行数: ${totalLines} | 匹配: ${matchedLines} | 显示: ${currentLogLines.length + newLines.length}`;
 	logStats.textContent = statsText;
