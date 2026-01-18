@@ -1,6 +1,15 @@
 // 获取VSCode API
 const vscode = acquireVsCodeApi();
 
+// 辅助函数：同时输出到浏览器console和后端输出通道
+function outputLog(message) {
+	console.log(message);
+	vscode.postMessage({
+		type: 'log',
+		message: message
+	});
+}
+
 // DOM元素
 const filterRegexTextarea = document.getElementById('filterRegex');
 const invertFilterRegexTextarea = document.getElementById('invertFilterRegex');
@@ -143,6 +152,8 @@ function applyFilter() {
 		visibleLines
 	};
 
+	outputLog('[applyFilter] Sending to backend: filterRegex="' + filterRegex + '", invertFilterRegex="' + invertFilterRegex + '"');
+
 	// 发送消息给扩展
 	vscode.postMessage({
 		type: 'applyFilter',
@@ -233,11 +244,14 @@ function appendNewLines(message) {
 	}
 
 	console.log(`[appendNewLines] Received ${newLines.length} new lines, totalLines=${totalLines}, matchedLines=${matchedLines}`);
+	outputLog(`[appendNewLines] Received ${newLines.length} new lines`);
 
 	// 检查是否有过滤规则应用（基于实际的文本框内容，而不是状态变量）
 	const currentFilterRegex = filterRegexTextarea.value;
 	const currentInvertFilterRegex = invertFilterRegexTextarea.value;
 	const currentHighlightRegex = highlightRegexTextarea.value;
+	
+	outputLog(`[appendNewLines] Current textarea values: main="${currentFilterRegex}", invert="${currentInvertFilterRegex}"`);
 	
 	const hasActiveFilter = currentFilterRegex.length > 0 || 
 	                        currentInvertFilterRegex.length > 0 ||
@@ -247,6 +261,7 @@ function appendNewLines(message) {
 	if (hasActiveFilter) {
 		console.log('[appendNewLines] Active filter detected, re-applying filter to maintain consistency...');
 		console.log(`[appendNewLines] Filters: main="${currentFilterRegex}", invert="${currentInvertFilterRegex}", highlight="${currentHighlightRegex}"`);
+		outputLog(`[appendNewLines] Re-applying filter: main="${currentFilterRegex}", invert="${currentInvertFilterRegex}"`);
 		
 		// 发送重新应用过滤的请求到后端（使用实际的文本框值）
 		vscode.postMessage({

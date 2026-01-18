@@ -1,12 +1,11 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { ConfigManager } from './configManager';
-import { PythonBackendManager } from './pythonBackendManager';
+import { outputChannel } from './extension';
 
 export class LogEditorProvider implements vscode.CustomTextEditorProvider {
 	private static readonly viewType = 'smartLogViewer.logEditor';
 	private configManager: ConfigManager;
-	private pythonBackendManager: PythonBackendManager;
 	private context: vscode.ExtensionContext;
 	private fileWatchers: Map<string, vscode.FileSystemWatcher> = new Map();
 	private webviewPanels: Map<string, vscode.WebviewPanel> = new Map();
@@ -16,9 +15,8 @@ export class LogEditorProvider implements vscode.CustomTextEditorProvider {
 	private fileChangeTimers: Map<string, NodeJS.Timeout> = new Map(); // 文件变化防抖定时器
 	private pollTimers: Map<string, NodeJS.Timeout> = new Map(); // 轮询定时器
 
-	constructor(context: vscode.ExtensionContext, pythonBackendManager: PythonBackendManager) {
+	constructor(context: vscode.ExtensionContext) {
 		this.context = context;
-		this.pythonBackendManager = pythonBackendManager;
 		this.configManager = new ConfigManager(context);
 	}
 
@@ -304,6 +302,12 @@ export class LogEditorProvider implements vscode.CustomTextEditorProvider {
 			console.log(`[appendNewLines] Processing ${newLines.length} new lines`);
 			console.log(`[appendNewLines] Config: filterRegex="${config.filterRegex}", invertFilter=${config.invertFilter}, invertFilterRegex="${config.invertFilterRegex}"`);
 
+			outputChannel.appendLine(`[appendNewLines] Processing ${newLines.length} new lines`);
+			outputChannel.appendLine(`[appendNewLines] Config details:`);
+			outputChannel.appendLine(`  filterRegex: "${config.filterRegex}"`);
+			outputChannel.appendLine(`  invertFilterRegex: "${config.invertFilterRegex}"`);
+			outputChannel.appendLine(`  invertFilter flag: ${config.invertFilter}`);
+
 			// 应用过滤规则到新增的行
 			let filteredNewLines = newLines;
 			
@@ -311,6 +315,7 @@ export class LogEditorProvider implements vscode.CustomTextEditorProvider {
 			if (config.filterRegex) {
 				try {
 					const regex = new RegExp(config.filterRegex);
+					outputChannel.appendLine(`[appendNewLines] Applying main filter with regex: "${config.filterRegex}"`);
 					filteredNewLines = newLines.filter(line => regex.test(line));
 					console.log(`[appendNewLines] After main filter: ${newLines.length} → ${filteredNewLines.length} lines`);
 				} catch (e) {
@@ -319,12 +324,14 @@ export class LogEditorProvider implements vscode.CustomTextEditorProvider {
 				}
 			}
 
-			// 应用反向过滤规则
-			if (config.invertFilter && config.invertFilterRegex) {
+			// 应用反向过滤规则（仅当invertFilterRegex不为空时才应用）
+			if (config.invertFilterRegex && config.invertFilterRegex.length > 0) {
 				try {
 					const invertRegex = new RegExp(config.invertFilterRegex);
 					const beforeInvert = filteredNewLines.length;
+					outputChannel.appendLine(`[appendNewLines] Applying invert filter with regex: "${config.invertFilterRegex}" (before: ${beforeInvert})`);
 					filteredNewLines = filteredNewLines.filter(line => !invertRegex.test(line));
+					outputChannel.appendLine(`[appendNewLines] After invert filter: ${beforeInvert} → ${filteredNewLines.length} lines`);
 					console.log(`[appendNewLines] After invert filter: ${beforeInvert} → ${filteredNewLines.length} lines`);
 				} catch (e) {
 					console.error('Invalid invert filter regex:', e);
@@ -383,33 +390,8 @@ export class LogEditorProvider implements vscode.CustomTextEditorProvider {
 	}
 
 	private async updateWebviewContent(filePath: string, content: string, config: any): Promise<void> {
-		const webviewPanel = this.webviewPanels.get(filePath);
-		if (!webviewPanel) {
-			return;
-		}
-
-		try {
-			const response = await this.pythonBackendManager.filterLogs(
-				content,
-				config.filterRegex || '',
-				config.invertFilter || false,
-				config.highlightMatches || false
-			);
-
-			webviewPanel.webview.postMessage({
-				type: 'updateContent',
-				logLines: response.filtered_lines,
-				totalLines: response.total_lines,
-				matchedLines: response.matched_lines,
-				highlightedLines: response.highlighted_lines || []
-			});
-		} catch (error) {
-			console.error('Error filtering logs:', error);
-			webviewPanel.webview.postMessage({
-				type: 'error',
-				message: 'Failed to filter logs: ' + (error as any).message
-			});
-		}
+		// 使用多过滤逻辑而不是Python后端，确保规则处理一致
+		await this.updateWebviewContentWithMultipleFilters(filePath, content, config);
 	}
 
 	private async updateWebviewContentWithMultipleFilters(filePath: string, content: string, config: any): Promise<void> {
@@ -481,6 +463,12 @@ export class LogEditorProvider implements vscode.CustomTextEditorProvider {
 		switch (message.type) {
 			case 'applyFilter':
 				{
+					outputChannel.appendLine('[handleWebviewMessage] Received applyFilter message:');
+					outputChannel.appendLine(`  filterRegex: "${message.filterRegex}"`);
+					outputChannel.appendLine(`  useInvertFilter: ${message.useInvertFilter}`);
+					outputChannel.appendLine(`  invertFilterRegex: "${message.invertFilterRegex}"`);
+					outputChannel.appendLine(`  highlightRegex: "${message.highlightRegex}"`);
+					
 					const config = {
 						filterRegex: message.filterRegex,
 						invertFilter: message.useInvertFilter,
@@ -493,6 +481,11 @@ export class LogEditorProvider implements vscode.CustomTextEditorProvider {
 						bufferSize: message.bufferSize,
 						visibleLines: message.visibleLines
 					};
+					
+					outputChannel.appendLine('[handleWebviewMessage] Saving config with:');
+					outputChannel.appendLine(`  filterRegex: "${config.filterRegex}"`);
+					outputChannel.appendLine(`  invertFilterRegex: "${config.invertFilterRegex}"`);
+					
 					this.configManager.saveConfig(filePath, config);
 					
 					const document = await vscode.workspace.openTextDocument(filePath);
@@ -549,6 +542,13 @@ export class LogEditorProvider implements vscode.CustomTextEditorProvider {
 						);
 						vscode.window.showInformationMessage('日志已导出');
 					}
+				}
+				break;
+
+			case 'log':
+				{
+					// 来自前端的日志消息
+					outputChannel.appendLine('[Frontend] ' + message.message);
 				}
 				break;
 		}

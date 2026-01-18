@@ -1,18 +1,18 @@
 import * as vscode from 'vscode';
 import { LogEditorProvider } from './logEditorProvider';
-import { PythonBackendManager } from './pythonBackendManager';
 
-let pythonBackendManager: PythonBackendManager;
+export let outputChannel: vscode.OutputChannel;
 
 export async function activate(context: vscode.ExtensionContext) {
+	// 创建输出通道
+	outputChannel = vscode.window.createOutputChannel('Smart Log Viewer');
+	outputChannel.show(true);
+	
+	outputChannel.appendLine('Smart Log Viewer extension is now active!');
 	console.log('Smart Log Viewer extension is now active!');
 
-	// 初始化Python后端管理器
-	pythonBackendManager = new PythonBackendManager(context);
-	await pythonBackendManager.initialize();
-
 	// 注册自定义编辑器提供者
-	const logEditorProvider = new LogEditorProvider(context, pythonBackendManager);
+	const logEditorProvider = new LogEditorProvider(context);
 	
 	context.subscriptions.push(
 		vscode.window.registerCustomEditorProvider('smartLogViewer.logEditor', logEditorProvider, {
@@ -38,7 +38,5 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() {
-	if (pythonBackendManager) {
-		pythonBackendManager.shutdown();
-	}
+	// Cleanup logic here
 }
