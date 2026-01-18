@@ -3,15 +3,15 @@
   "displayName": "Smart Log Viewer",
   "description": "A professional log viewer with regex filtering, real-time updates, virtual scrolling for large files, and persistent configurations",
   "version": "0.1.0",
-  "publisher": "your-publisher-name",
+  "publisher": "843773493",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/smart-log-viewer"
+    "url": "https://github.com/843773493/smart_log_viewer"
   },
   "bugs": {
-    "url": "https://github.com/your-username/smart-log-viewer/issues"
+    "url": "https://github.com/843773493/smart_log_viewer/issues"
   },
-  "homepage": "https://github.com/your-username/smart-log-viewer/blob/main/README.md",
+  "homepage": "https://github.com/843773493/smart_log_viewer/blob/main/README.md",
   "icon": "media/icon.png",
   "license": "MIT",
   "keywords": [
@@ -64,11 +64,11 @@
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
-    "package": "vsce package",
-    "publish": "npm run compile && vsce publish",
-    "publish:patch": "npm run compile && vsce publish patch",
-    "publish:minor": "npm run compile && vsce publish minor",
-    "publish:major": "npm run compile && vsce publish major"
+    "package": "npm run compile && npx @vscode/vsce package",
+    "publish": "npm run compile && npx @vscode/vsce publish",
+    "publish:patch": "npm run compile && npx @vscode/vsce publish patch",
+    "publish:minor": "npm run compile && npx @vscode/vsce publish minor",
+    "publish:major": "npm run compile && npx @vscode/vsce publish major"
   },
   "devDependencies": {
     "@types/vscode": "^1.75.0",
