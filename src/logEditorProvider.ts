@@ -11,6 +11,10 @@ export class LogEditorProvider implements vscode.CustomTextEditorProvider {
 	private fileWatchers: Map<string, vscode.FileSystemWatcher> = new Map();
 	private webviewPanels: Map<string, vscode.WebviewPanel> = new Map();
 	private lastContentLength: Map<string, number> = new Map(); // 追踪上次读取的内容长度
+	private isFileSystemChange: Map<string, boolean> = new Map(); // 标记是否是文件系统变化
+	private changeSubscriptions: Map<string, vscode.Disposable> = new Map(); // 保存文档变化监听器
+	private fileChangeTimers: Map<string, NodeJS.Timeout> = new Map(); // 文件变化防抖定时器
+	private pollTimers: Map<string, NodeJS.Timeout> = new Map(); // 轮询定时器
 
 	constructor(context: vscode.ExtensionContext, pythonBackendManager: PythonBackendManager) {
 		this.context = context;
@@ -57,24 +61,58 @@ export class LogEditorProvider implements vscode.CustomTextEditorProvider {
 			await this.handleWebviewMessage(message, filePath, webviewPanel);
 		});
 
-		// 监听文件变化
+		// 监听文件变化（外部程序修改）
 		this.watchFileChanges(filePath, webviewPanel, document);
 
-		// 监听文档变化
+		// 监听文档变化（编辑器内修改或外部程序修改）
 		const changeSubscription = vscode.workspace.onDidChangeTextDocument(async (event) => {
 			if (event.document.uri.fsPath === filePath) {
+				// 检查是否是文件系统变化
+				const isFileChange = this.isFileSystemChange.get(filePath) || false;
+				
+				if (isFileChange) {
+					// 文件系统变化，由watchFileChanges处理，跳过这里的处理
+					this.isFileSystemChange.set(filePath, false);
+					return;
+				}
+				
+				// 编辑器内修改，使用完全更新
 				const newContent = event.document.getText();
+				const config = this.configManager.getConfig(filePath);
 				await this.updateWebviewContent(filePath, newContent, config);
 			}
 		});
 
+		this.changeSubscriptions.set(filePath, changeSubscription);
+
 		webviewPanel.onDidDispose(() => {
 			changeSubscription.dispose();
+			const storedSubscription = this.changeSubscriptions.get(filePath);
+			if (storedSubscription) {
+				storedSubscription.dispose();
+				this.changeSubscriptions.delete(filePath);
+			}
 			this.webviewPanels.delete(filePath);
 			const watcher = this.fileWatchers.get(filePath);
 			if (watcher) {
 				watcher.dispose();
 				this.fileWatchers.delete(filePath);
+			}
+			this.lastContentLength.delete(filePath);
+			this.isFileSystemChange.delete(filePath);
+			
+			// 清理文件变化定时器
+			const timer = this.fileChangeTimers.get(filePath);
+			if (timer) {
+				clearTimeout(timer);
+				this.fileChangeTimers.delete(filePath);
+			}
+			
+			// 清理轮询定时器
+			const pollTimer = this.pollTimers.get(filePath);
+			if (pollTimer) {
+				clearInterval(pollTimer);
+				this.pollTimers.delete(filePath);
 			}
 		});
 	}
@@ -158,34 +196,95 @@ export class LogEditorProvider implements vscode.CustomTextEditorProvider {
 		);
 
 		watcher.onDidChange(async () => {
-			// 重新读取文件内容
-			try {
-				const fileContent = await vscode.workspace.fs.readFile(vscode.Uri.file(filePath));
-				const content = new TextDecoder().decode(fileContent);
-				const config = this.configManager.getConfig(filePath);
-				
-				// 检查是否有新的内容被追加
-				const lastLength = this.lastContentLength.get(filePath) || 0;
-				const currentLength = content.length;
-				
-				// 如果文件内容长度增加，执行增量更新
-				if (currentLength > lastLength) {
-					// 获取新增的内容
-					const newContent = content.substring(lastLength);
-					await this.appendNewLines(filePath, content, newContent, config);
-				} else {
-					// 文件被修改或重写，执行完全更新
-					await this.updateWebviewContent(filePath, content, config);
+			console.log(`[FileWatcher] File changed: ${filePath}`);
+			
+			// 清除之前的防抖定时器
+			const existingTimer = this.fileChangeTimers.get(filePath);
+			if (existingTimer) {
+				clearTimeout(existingTimer);
+			}
+
+			// 添加防抖延迟，避免频繁更新
+			const timer = setTimeout(async () => {
+				try {
+					// 重新读取文件内容
+					const fileContent = await vscode.workspace.fs.readFile(vscode.Uri.file(filePath));
+					const content = new TextDecoder().decode(fileContent);
+					const config = this.configManager.getConfig(filePath);
+					
+					// 检查是否有新的内容被追加
+					const lastLength = this.lastContentLength.get(filePath) || 0;
+					const currentLength = content.length;
+					
+					console.log(`[FileWatcher] Detected change: lastLength=${lastLength}, currentLength=${currentLength}`);
+					
+					// 如果文件内容长度增加，执行增量更新
+					if (currentLength > lastLength) {
+						console.log('[FileWatcher] Executing incremental update...');
+						// 获取新增的内容
+						const newContent = content.substring(lastLength);
+						await this.appendNewLines(filePath, content, newContent, config);
+					} else {
+						console.log('[FileWatcher] Executing full update...');
+						// 文件被修改或重写，执行完全更新
+						await this.updateWebviewContent(filePath, content, config);
+					}
+					
+					// 更新内容长度
+					this.lastContentLength.set(filePath, currentLength);
+					
+					// 标记下一个文档变化事件是由文件系统变化引起的（避免冲突）
+					this.isFileSystemChange.set(filePath, true);
+				} catch (error) {
+					console.error('[FileWatcher] Error reading file:', error);
 				}
 				
-				// 更新内容长度
-				this.lastContentLength.set(filePath, currentLength);
-			} catch (error) {
-				console.error('Error reading file:', error);
-			}
+				// 清除定时器记录
+				this.fileChangeTimers.delete(filePath);
+			}, 200); // 200ms防抖延迟
+
+			this.fileChangeTimers.set(filePath, timer);
 		});
 
 		this.fileWatchers.set(filePath, watcher);
+		
+		// 添加轮询机制作为备用（确保实时更新）
+		this.startPollingFileChanges(filePath, webviewPanel);
+	}
+
+	private startPollingFileChanges(filePath: string, webviewPanel: vscode.WebviewPanel): void {
+		// 每隔500ms轮询一次文件内容
+		const pollTimer = setInterval(async () => {
+			// 检查webviewPanel是否仍然有效
+			if (!this.webviewPanels.has(filePath)) {
+				clearInterval(pollTimer);
+				this.pollTimers.delete(filePath);
+				return;
+			}
+
+			try {
+				const fileContent = await vscode.workspace.fs.readFile(vscode.Uri.file(filePath));
+				const content = new TextDecoder().decode(fileContent);
+				const lastLength = this.lastContentLength.get(filePath) || 0;
+				const currentLength = content.length;
+
+				// 检测到文件有变化
+				if (currentLength > lastLength) {
+					const config = this.configManager.getConfig(filePath);
+					const newContent = content.substring(lastLength);
+					console.log(`[Polling] Detected new content: ${newContent.length} bytes`);
+					
+					// 执行增量更新
+					await this.appendNewLines(filePath, content, newContent, config);
+					this.lastContentLength.set(filePath, currentLength);
+					this.isFileSystemChange.set(filePath, true);
+				}
+			} catch (error) {
+				console.error('[Polling] Error polling file:', error);
+			}
+		}, 500);
+
+		this.pollTimers.set(filePath, pollTimer);
 	}
 
 	private async appendNewLines(filePath: string, fullContent: string, newContent: string, config: any): Promise<void> {
