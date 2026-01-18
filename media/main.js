@@ -56,6 +56,9 @@ window.addEventListener('message', event => {
 		case 'updateContent':
 			updateLogContent(message);
 			break;
+		case 'appendNewLines':
+			appendNewLines(message);
+			break;
 		case 'clearFilter':
 			clearFilterUI();
 			break;
@@ -222,9 +225,84 @@ function updateLogContent(message) {
 	renderVirtualScroll(logLines, highlightedLines);
 }
 
+function appendNewLines(message) {
+	const { newLines, totalLines, matchedLines } = message;
+	
+	if (!newLines || newLines.length === 0) {
+		return;
+	}
+
+	// 更新统计信息
+	const statsText = `总行数: ${totalLines} | 匹配: ${matchedLines} | 显示: ${currentLogLines.length + newLines.length}`;
+	logStats.textContent = statsText;
+
+	// 添加新行到currentLogLines
+	newLines.forEach(lineObj => {
+		if (typeof lineObj === 'string') {
+			currentLogLines.push(lineObj);
+		} else {
+			currentLogLines.push(lineObj.text);
+		}
+	});
+
+	// 如果使用传统渲染模式
+	if (!filterState.virtualScrollEnabled || currentLogLines.length < 100) {
+		// 创建新行元素并追加
+		const highlightedSet = new Set();
+		newLines.forEach((lineObj, idx) => {
+			if (typeof lineObj === 'object' && lineObj.highlighted) {
+				highlightedSet.add(currentLogLines.length - newLines.length + idx);
+			}
+		});
+
+		newLines.forEach((lineObj, idx) => {
+			const lineIndex = currentLogLines.length - newLines.length + idx;
+			const lineText = typeof lineObj === 'string' ? lineObj : lineObj.text;
+			const isHighlighted = highlightedSet.has(lineIndex);
+			const lineElement = createLogLineElement(lineText, lineIndex, isHighlighted);
+			logContent.appendChild(lineElement);
+		});
+
+		// 自动滚动到底部
+		logContainer.scrollTop = logContainer.scrollHeight;
+		return;
+	}
+
+	// 虚拟滚动模式下的增量更新
+	const virtualContainer = logContent.querySelector('.virtual-scroll-container');
+	if (!virtualContainer) {
+		// 如果没有虚拟滚动容器，重新渲染
+		renderVirtualScroll(currentLogLines, []);
+		return;
+	}
+
+	// 更新容器高度
+	const newContainerHeight = currentLogLines.length * filterState.itemHeight;
+	virtualContainer.style.height = newContainerHeight + 'px';
+	logContent.style.minHeight = newContainerHeight + 'px';
+
+	// 添加新行到虚拟滚动容器 (虚拟滚动中不启用toggle功能)
+	newLines.forEach((lineObj, idx) => {
+		const lineIndex = currentLogLines.length - newLines.length + idx;
+		const lineText = typeof lineObj === 'string' ? lineObj : lineObj.text;
+		const isHighlighted = typeof lineObj === 'object' && lineObj.highlighted;
+		const lineElement = createLogLineElement(lineText, lineIndex, isHighlighted, false);
+		lineElement.style.position = 'absolute';
+		lineElement.style.top = (lineIndex * filterState.itemHeight) + 'px';
+		lineElement.style.width = '100%';
+		lineElement.style.height = filterState.itemHeight + 'px';
+		virtualContainer.appendChild(lineElement);
+	});
+
+	// 自动滚动到底部
+	logContainer.scrollTop = logContainer.scrollHeight;
+}
+
 function renderAllLines(logLines, highlightedLines) {
 	// 清空日志容器
 	logContent.innerHTML = '';
+	logContent.style.height = 'auto';
+	logContent.style.minHeight = 'auto';
 
 	// 创建行号和内容映射
 	const lineMap = new Map();
@@ -239,6 +317,11 @@ function renderAllLines(logLines, highlightedLines) {
 		const lineElement = createLogLineElement(line, index, lineMap.has(index));
 		logContent.appendChild(lineElement);
 	});
+	
+	// 自动滚动到底部
+	setTimeout(() => {
+		logContainer.scrollTop = logContainer.scrollHeight;
+	}, 0);
 }
 
 function renderVirtualScroll(logLines, highlightedLines) {
@@ -270,12 +353,13 @@ function renderVirtualScroll(logLines, highlightedLines) {
 	const startIndex = Math.max(0, Math.floor(scrollTop / filterState.itemHeight) - filterState.bufferSize);
 	const endIndex = Math.min(logLines.length, startIndex + filterState.visibleLines + 2 * filterState.bufferSize);
 
-	// 只渲染可见范围内的行
+	// 只渲染可见范围内的行 (虚拟滚动中不启用toggle功能以保持行高一致)
 	for (let i = startIndex; i < endIndex; i++) {
-		const lineElement = createLogLineElement(logLines[i], i, lineMap.has(i));
+		const lineElement = createLogLineElement(logLines[i], i, lineMap.has(i), false);
 		lineElement.style.position = 'absolute';
 		lineElement.style.top = (i * filterState.itemHeight) + 'px';
 		lineElement.style.width = '100%';
+		lineElement.style.height = filterState.itemHeight + 'px'; // 固定虚拟滚动中的高度
 		virtualContainer.appendChild(lineElement);
 	}
 
@@ -286,14 +370,22 @@ function renderVirtualScroll(logLines, highlightedLines) {
 	scrollState.endIndex = endIndex;
 }
 
-function createLogLineElement(line, index, isHighlighted) {
+function createLogLineElement(line, index, isHighlighted, enableToggle = true) {
 	const lineElement = document.createElement('div');
 	lineElement.className = 'log-line';
-	lineElement.style.height = filterState.itemHeight + 'px';
+	lineElement.style.height = 'auto'; // 改为auto以支持自动高度（在虚拟滚动中会被覆盖）
+	lineElement.setAttribute('data-line-index', index);
 
 	const lineNum = document.createElement('span');
 	lineNum.className = 'line-number';
 	lineNum.textContent = (index + 1).toString().padStart(6, ' ');
+
+	const contentWrapper = document.createElement('div');
+	contentWrapper.className = 'line-content-wrapper';
+	contentWrapper.style.display = 'flex';
+	contentWrapper.style.alignItems = 'flex-start';
+	contentWrapper.style.gap = '6px';
+	contentWrapper.style.flex = '1';
 
 	const lineContent = document.createElement('span');
 	lineContent.className = 'line-content';
@@ -315,8 +407,75 @@ function createLogLineElement(line, index, isHighlighted) {
 	}
 
 	lineContent.textContent = line;
+	
+	// 检查文本是否超过容器宽度，如果超过则添加折叠按钮
+	contentWrapper.appendChild(lineContent);
+	
+	// 仅在启用折叠且文本较长时添加折叠按钮
+	if (enableToggle && line.length > 60) {
+		// 创建一个临时元素来测量文本宽度
+		const tempSpan = document.createElement('span');
+		tempSpan.className = 'line-content';
+		tempSpan.style.position = 'absolute';
+		tempSpan.style.visibility = 'hidden';
+		tempSpan.style.whiteSpace = 'pre-wrap';
+		tempSpan.style.wordBreak = 'break-word';
+		tempSpan.textContent = line;
+		document.body.appendChild(tempSpan);
+		
+		const textWidth = tempSpan.offsetWidth;
+		const containerWidth = logContainer.clientWidth - 100; // 减去行号和padding
+		
+		document.body.removeChild(tempSpan);
+		
+		// 如果文本超宽，添加展开/折叠按钮
+		if (textWidth > containerWidth) {
+			const toggleBtn = document.createElement('button');
+			toggleBtn.className = 'line-toggle-btn';
+			toggleBtn.textContent = '▼';
+			toggleBtn.title = '点击展开/折叠长行';
+			toggleBtn.style.padding = '2px 6px';
+			toggleBtn.style.fontSize = '10px';
+			toggleBtn.style.minWidth = '24px';
+			toggleBtn.style.height = '20px';
+			toggleBtn.style.flexShrink = '0';
+			
+			let isExpanded = false;
+			
+			toggleBtn.addEventListener('click', (e) => {
+				e.stopPropagation();
+				isExpanded = !isExpanded;
+				
+				if (isExpanded) {
+					// 展开状态：显示完整文本
+					lineContent.style.whiteSpace = 'pre-wrap';
+					lineContent.style.wordBreak = 'break-word';
+					lineContent.style.maxWidth = 'none';
+					lineElement.style.height = 'auto';
+					toggleBtn.textContent = '▲';
+				} else {
+					// 折叠状态：限制文本高度
+					lineContent.style.whiteSpace = 'nowrap';
+					lineContent.style.overflow = 'hidden';
+					lineContent.style.textOverflow = 'ellipsis';
+					lineContent.style.maxWidth = containerWidth + 'px';
+					lineElement.style.height = filterState.itemHeight + 'px';
+					toggleBtn.textContent = '▼';
+				}
+			});
+			
+			// 默认折叠状态
+			lineContent.style.whiteSpace = 'nowrap';
+			lineContent.style.overflow = 'hidden';
+			lineContent.style.textOverflow = 'ellipsis';
+			lineContent.style.maxWidth = containerWidth + 'px';
+			
+			contentWrapper.insertBefore(toggleBtn, lineContent);
+		}
+	}
+	
 	lineElement.appendChild(lineNum);
-	lineElement.appendChild(lineContent);
+	lineElement.appendChild(contentWrapper);
 	
 	return lineElement;
 }
@@ -368,12 +527,13 @@ function handleScroll() {
 			}
 		}
 
-		// 只渲染可见范围内的行
+		// 只渲染可见范围内的行 (虚拟滚动中不启用toggle功能)
 		for (let i = startIndex; i < endIndex; i++) {
-			const lineElement = createLogLineElement(currentLogLines[i], i, lineMap.has(i));
+			const lineElement = createLogLineElement(currentLogLines[i], i, lineMap.has(i), false);
 			lineElement.style.position = 'absolute';
 			lineElement.style.top = (i * filterState.itemHeight) + 'px';
 			lineElement.style.width = '100%';
+			lineElement.style.height = filterState.itemHeight + 'px';
 			virtualContainer.appendChild(lineElement);
 		}
 

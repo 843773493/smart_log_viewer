@@ -10,6 +10,7 @@ export class LogEditorProvider implements vscode.CustomTextEditorProvider {
 	private context: vscode.ExtensionContext;
 	private fileWatchers: Map<string, vscode.FileSystemWatcher> = new Map();
 	private webviewPanels: Map<string, vscode.WebviewPanel> = new Map();
+	private lastContentLength: Map<string, number> = new Map(); // 追踪上次读取的内容长度
 
 	constructor(context: vscode.ExtensionContext, pythonBackendManager: PythonBackendManager) {
 		this.context = context;
@@ -148,6 +149,9 @@ export class LogEditorProvider implements vscode.CustomTextEditorProvider {
 	}
 
 	private watchFileChanges(filePath: string, webviewPanel: vscode.WebviewPanel, document: vscode.TextDocument): void {
+		// 初始化内容长度
+		this.lastContentLength.set(filePath, document.getText().length);
+
 		// 监听文件系统变化
 		const watcher = vscode.workspace.createFileSystemWatcher(
 			new vscode.RelativePattern(vscode.Uri.file(path.dirname(filePath)), path.basename(filePath))
@@ -159,13 +163,116 @@ export class LogEditorProvider implements vscode.CustomTextEditorProvider {
 				const fileContent = await vscode.workspace.fs.readFile(vscode.Uri.file(filePath));
 				const content = new TextDecoder().decode(fileContent);
 				const config = this.configManager.getConfig(filePath);
-				await this.updateWebviewContent(filePath, content, config);
+				
+				// 检查是否有新的内容被追加
+				const lastLength = this.lastContentLength.get(filePath) || 0;
+				const currentLength = content.length;
+				
+				// 如果文件内容长度增加，执行增量更新
+				if (currentLength > lastLength) {
+					// 获取新增的内容
+					const newContent = content.substring(lastLength);
+					await this.appendNewLines(filePath, content, newContent, config);
+				} else {
+					// 文件被修改或重写，执行完全更新
+					await this.updateWebviewContent(filePath, content, config);
+				}
+				
+				// 更新内容长度
+				this.lastContentLength.set(filePath, currentLength);
 			} catch (error) {
 				console.error('Error reading file:', error);
 			}
 		});
 
 		this.fileWatchers.set(filePath, watcher);
+	}
+
+	private async appendNewLines(filePath: string, fullContent: string, newContent: string, config: any): Promise<void> {
+		const webviewPanel = this.webviewPanels.get(filePath);
+		if (!webviewPanel) {
+			return;
+		}
+
+		try {
+			// 解析新增的行
+			const newLines = newContent.split('\n').filter(line => line.length > 0);
+			
+			if (newLines.length === 0) {
+				return;
+			}
+
+			// 应用过滤规则到新增的行
+			let filteredNewLines = newLines;
+			
+			// 应用主过滤规则
+			if (config.filterRegex) {
+				try {
+					const regex = new RegExp(config.filterRegex);
+					filteredNewLines = newLines.filter(line => regex.test(line));
+				} catch (e) {
+					console.error('Invalid main filter regex:', e);
+					filteredNewLines = newLines;
+				}
+			}
+
+			// 应用反向过滤规则
+			if (config.invertFilter && config.invertFilterRegex) {
+				try {
+					const invertRegex = new RegExp(config.invertFilterRegex);
+					filteredNewLines = filteredNewLines.filter(line => !invertRegex.test(line));
+				} catch (e) {
+					console.error('Invalid invert filter regex:', e);
+				}
+			}
+
+			// 应用高亮规则
+			let highlightedLines: { text: string; highlighted: boolean }[] = [];
+			if (config.highlightMatches && config.highlightRegex) {
+				try {
+					const highlightRegex = new RegExp(config.highlightRegex);
+					highlightedLines = filteredNewLines.map(line => ({
+						text: line,
+						highlighted: highlightRegex.test(line)
+					}));
+				} catch (e) {
+					console.error('Invalid highlight regex:', e);
+					highlightedLines = filteredNewLines.map(line => ({
+						text: line,
+						highlighted: false
+					}));
+				}
+			} else {
+				highlightedLines = filteredNewLines.map(line => ({
+					text: line,
+					highlighted: false
+				}));
+			}
+
+			// 获取总行数和匹配行数
+			const allLines = fullContent.split('\n');
+			const totalLines = allLines.length;
+			let matchedLines = totalLines;
+
+			if (config.filterRegex) {
+				try {
+					const regex = new RegExp(config.filterRegex);
+					matchedLines = allLines.filter(line => regex.test(line)).length;
+				} catch (e) {
+					matchedLines = totalLines;
+				}
+			}
+
+			// 发送增量更新消息
+			webviewPanel.webview.postMessage({
+				type: 'appendNewLines',
+				newLines: highlightedLines,
+				totalLines: totalLines,
+				matchedLines: matchedLines
+			});
+		} catch (error) {
+			console.error('Error appending new lines:', error);
+		}
 	}
 
 	private async updateWebviewContent(filePath: string, content: string, config: any): Promise<void> {
