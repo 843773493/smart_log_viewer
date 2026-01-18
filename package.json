@@ -2,7 +2,7 @@
   "name": "smart-log-viewer",
   "displayName": "Smart Log Viewer",
   "description": "A professional log viewer with regex filtering, real-time updates, virtual scrolling for large files, and persistent configurations",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "publisher": "843773493",
   "repository": {
     "type": "git",
