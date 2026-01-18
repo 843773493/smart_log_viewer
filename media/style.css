@@ -1,0 +1,335 @@
+:root {
+	--bg-color: #1e1e1e;
+	--text-color: #e0e0e0;
+	--border-color: #3e3e42;
+	--error-color: #f48771;
+	--warn-color: #dcdcaa;
+	--info-color: #569cd6;
+	--debug-color: #ce9178;
+	--highlight-color: #264f78;
+	--button-bg: #0e639c;
+	--button-hover: #1177bb;
+	--input-bg: #252526;
+}
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body {
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+	background-color: var(--bg-color);
+	color: var(--text-color);
+	font-size: 12px;
+	line-height: 1.5;
+	overflow: hidden;
+}
+
+.container {
+	display: flex;
+	flex-direction: column;
+	height: 100vh;
+	padding: 0;
+	margin: 0;
+}
+
+.controls {
+	background-color: #252526;
+	border-bottom: 1px solid var(--border-color);
+	padding: 0;
+	max-height: 100%;
+	overflow-y: auto;
+}
+
+.controls-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 12px;
+	background-color: #2d2d30;
+	border-bottom: 1px solid var(--border-color);
+	cursor: pointer;
+	user-select: none;
+}
+
+.controls-header h3 {
+	margin: 0;
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--text-color);
+}
+
+.toggle-btn {
+	background: none;
+	border: none;
+	color: var(--text-color);
+	cursor: pointer;
+	font-size: 12px;
+	padding: 0;
+	width: 24px;
+	text-align: center;
+}
+
+.toggle-btn:hover {
+	color: var(--button-hover);
+}
+
+.controls-content {
+	padding: 12px;
+	display: block;
+	max-height: 300px;
+	overflow-y: auto;
+}
+
+.filter-section {
+	margin-bottom: 12px;
+}
+
+.filter-section label {
+	display: block;
+	margin-bottom: 6px;
+	font-weight: 500;
+	color: var(--text-color);
+	font-size: 12px;
+}
+
+#filterRegex,
+#invertFilterRegex,
+#highlightRegex {
+	width: 100%;
+	height: 50px;
+	padding: 8px;
+	background-color: var(--input-bg);
+	border: 1px solid var(--border-color);
+	color: var(--text-color);
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+	font-size: 11px;
+	resize: vertical;
+	border-radius: 4px;
+	margin-bottom: 8px;
+}
+
+#filterRegex:focus,
+#invertFilterRegex:focus,
+#highlightRegex:focus {
+	outline: none;
+	border-color: var(--button-hover);
+	box-shadow: 0 0 0 2px rgba(17, 119, 187, 0.2);
+}
+
+.button-group {
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+	align-items: center;
+}
+
+button {
+	padding: 6px 12px;
+	background-color: var(--button-bg);
+	color: white;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 12px;
+	font-weight: 500;
+	transition: background-color 0.2s;
+}
+
+button:hover {
+	background-color: var(--button-hover);
+}
+
+button:active {
+	transform: scale(0.98);
+}
+
+.checkbox {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	cursor: pointer;
+	user-select: none;
+	font-size: 12px;
+}
+
+.checkbox input[type="checkbox"] {
+	width: 14px;
+	height: 14px;
+	cursor: pointer;
+}
+
+.info-section {
+	font-size: 11px;
+	color: #a0a0a0;
+	margin-top: 8px;
+	padding: 4px 0;
+}
+
+.log-container {
+	flex: 1;
+	overflow: auto;
+	background-color: var(--bg-color);
+	border: 1px solid var(--border-color);
+	margin: 8px;
+	border-radius: 4px;
+}
+
+.log-content {
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+	font-size: 12px;
+	padding: 8px 0;
+	user-select: text;
+}
+
+.log-line {
+	display: flex;
+	padding: 0 8px;
+	line-height: 1.6;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+	transition: background-color 0.2s;
+}
+
+.log-line:hover {
+	background-color: rgba(255, 255, 255, 0.05);
+}
+
+.line-number {
+	color: #858585;
+	user-select: none;
+	min-width: 50px;
+	padding-right: 8px;
+	border-right: 1px solid var(--border-color);
+	margin-right: 8px;
+	display: inline-block;
+	text-align: right;
+}
+
+.line-content {
+	flex: 1;
+	white-space: pre-wrap;
+	word-break: break-word;
+	color: var(--text-color);
+}
+
+/* 日志级别颜色 */
+.log-error {
+	background-color: rgba(244, 135, 113, 0.1);
+}
+
+.log-error .line-content {
+	color: var(--error-color);
+}
+
+.log-warn {
+	background-color: rgba(220, 220, 170, 0.1);
+}
+
+.log-warn .line-content {
+	color: var(--warn-color);
+}
+
+.log-info {
+	background-color: rgba(86, 156, 214, 0.05);
+}
+
+.log-info .line-content {
+	color: var(--info-color);
+}
+
+.log-debug {
+	background-color: rgba(206, 145, 120, 0.05);
+}
+
+.log-debug .line-content {
+	color: var(--debug-color);
+}
+
+/* 高亮匹配 */
+.log-line .highlighted {
+	background-color: var(--highlight-color);
+	padding: 2px 4px;
+	border-radius: 2px;
+}
+
+/* 错误消息 */
+.error-message {
+	background-color: rgba(244, 135, 113, 0.2);
+	color: var(--error-color);
+	padding: 8px 12px;
+	margin: 8px;
+	border-left: 3px solid var(--error-color);
+	border-radius: 4px;
+	font-size: 12px;
+	animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* 虚拟滚动容器 */
+.virtual-scroll-container {
+	position: relative;
+	width: 100%;
+}
+
+.log-line {
+	display: flex;
+	padding: 0 8px;
+	line-height: 1.6;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+	transition: background-color 0.2s;
+	/* 虚拟滚动时需要精确的高度 */
+	overflow: hidden;
+}
+
+/* 滚动条美化 */
+.log-container::-webkit-scrollbar {
+	width: 10px;
+	height: 10px;
+}
+
+.log-container::-webkit-scrollbar-track {
+	background: var(--bg-color);
+}
+
+.log-container::-webkit-scrollbar-thumb {
+	background: #424242;
+	border-radius: 5px;
+}
+
+.log-container::-webkit-scrollbar-thumb:hover {
+	background: #4e4e4e;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+	.button-group {
+		flex-direction: column;
+	}
+
+	button {
+		width: 100%;
+	}
+
+	.log-line {
+		flex-direction: column;
+	}
+
+	.line-number {
+		border-right: none;
+		border-bottom: 1px solid var(--border-color);
+		margin-bottom: 4px;
+		padding-right: 0;
+	}
+}

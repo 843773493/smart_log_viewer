@@ -1,0 +1,81 @@
+{
+  "name": "smart-log-viewer",
+  "displayName": "Smart Log Viewer",
+  "description": "A professional log viewer with regex filtering, real-time updates, virtual scrolling for large files, and persistent configurations",
+  "version": "0.1.0",
+  "publisher": "your-publisher-name",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/smart-log-viewer"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/smart-log-viewer/issues"
+  },
+  "homepage": "https://github.com/your-username/smart-log-viewer/blob/main/README.md",
+  "icon": "media/icon.png",
+  "license": "MIT",
+  "keywords": [
+    "log",
+    "viewer",
+    "filter",
+    "regex",
+    "log-analysis",
+    "debug",
+    "monitoring"
+  ],
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCustomEditor:smartLogViewer.logEditor"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "smartLogViewer.logEditor",
+        "displayName": "Smart Log Editor",
+        "selector": [
+          {
+            "filenamePattern": "*.log"
+          }
+        ],
+        "priority": "default"
+      }
+    ],
+    "commands": [
+      {
+        "command": "smartLogViewer.clearFilter",
+        "title": "Clear Log Filter"
+      },
+      {
+        "command": "smartLogViewer.saveConfig",
+        "title": "Save Log Configuration"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js",
+    "package": "vsce package",
+    "publish": "npm run compile && vsce publish",
+    "publish:patch": "npm run compile && vsce publish patch",
+    "publish:minor": "npm run compile && vsce publish minor",
+    "publish:major": "npm run compile && vsce publish major"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.75.0",
+    "@types/node": "16.x",
+    "@typescript-eslint/eslint-plugin": "^5.45.0",
+    "@typescript-eslint/parser": "^5.45.0",
+    "eslint": "^8.29.0",
+    "typescript": "^4.9.4"
+  }
+}
