@@ -301,6 +301,9 @@ export class LogEditorProvider implements vscode.CustomTextEditorProvider {
 				return;
 			}
 
+			console.log(`[appendNewLines] Processing ${newLines.length} new lines`);
+			console.log(`[appendNewLines] Config: filterRegex="${config.filterRegex}", invertFilter=${config.invertFilter}, invertFilterRegex="${config.invertFilterRegex}"`);
+
 			// 应用过滤规则到新增的行
 			let filteredNewLines = newLines;
 			
@@ -309,6 +312,7 @@ export class LogEditorProvider implements vscode.CustomTextEditorProvider {
 				try {
 					const regex = new RegExp(config.filterRegex);
 					filteredNewLines = newLines.filter(line => regex.test(line));
+					console.log(`[appendNewLines] After main filter: ${newLines.length} → ${filteredNewLines.length} lines`);
 				} catch (e) {
 					console.error('Invalid main filter regex:', e);
 					filteredNewLines = newLines;
@@ -319,7 +323,9 @@ export class LogEditorProvider implements vscode.CustomTextEditorProvider {
 			if (config.invertFilter && config.invertFilterRegex) {
 				try {
 					const invertRegex = new RegExp(config.invertFilterRegex);
+					const beforeInvert = filteredNewLines.length;
 					filteredNewLines = filteredNewLines.filter(line => !invertRegex.test(line));
+					console.log(`[appendNewLines] After invert filter: ${beforeInvert} → ${filteredNewLines.length} lines`);
 				} catch (e) {
 					console.error('Invalid invert filter regex:', e);
 				}
@@ -361,6 +367,8 @@ export class LogEditorProvider implements vscode.CustomTextEditorProvider {
 					matchedLines = totalLines;
 				}
 			}
+
+			console.log(`[appendNewLines] Final: totalLines=${totalLines}, matchedLines=${matchedLines}, displayLines=${filteredNewLines.length}`);
 
 			// 发送增量更新消息
 			webviewPanel.webview.postMessage({

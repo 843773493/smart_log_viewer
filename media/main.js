@@ -234,22 +234,28 @@ function appendNewLines(message) {
 
 	console.log(`[appendNewLines] Received ${newLines.length} new lines, totalLines=${totalLines}, matchedLines=${matchedLines}`);
 
-	// 检查是否有过滤规则应用
-	const hasActiveFilter = filterState.filterRegex.length > 0 || 
-	                        filterState.invertFilterRegex.length > 0 ||
-	                        filterState.highlightRegex.length > 0;
+	// 检查是否有过滤规则应用（基于实际的文本框内容，而不是状态变量）
+	const currentFilterRegex = filterRegexTextarea.value;
+	const currentInvertFilterRegex = invertFilterRegexTextarea.value;
+	const currentHighlightRegex = highlightRegexTextarea.value;
+	
+	const hasActiveFilter = currentFilterRegex.length > 0 || 
+	                        currentInvertFilterRegex.length > 0 ||
+	                        currentHighlightRegex.length > 0;
 
 	// 如果有过滤规则应用，需要重新应用过滤以保持一致性
 	if (hasActiveFilter) {
 		console.log('[appendNewLines] Active filter detected, re-applying filter to maintain consistency...');
-		// 发送重新应用过滤的请求到后端
+		console.log(`[appendNewLines] Filters: main="${currentFilterRegex}", invert="${currentInvertFilterRegex}", highlight="${currentHighlightRegex}"`);
+		
+		// 发送重新应用过滤的请求到后端（使用实际的文本框值）
 		vscode.postMessage({
 			type: 'applyFilter',
-			filterRegex: filterState.filterRegex,
-			useInvertFilter: filterState.useInvertFilter,
-			invertFilterRegex: filterState.invertFilterRegex,
-			useHighlightFilter: filterState.useHighlightFilter,
-			highlightRegex: filterState.highlightRegex,
+			filterRegex: currentFilterRegex,
+			useInvertFilter: currentInvertFilterRegex.length > 0,
+			invertFilterRegex: currentInvertFilterRegex,
+			useHighlightFilter: currentHighlightRegex.length > 0,
+			highlightRegex: currentHighlightRegex,
 			controlsPanelCollapsed: filterState.controlsPanelCollapsed,
 			virtualScrollEnabled: filterState.virtualScrollEnabled,
 			itemHeight: filterState.itemHeight,
