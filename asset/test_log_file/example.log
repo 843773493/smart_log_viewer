@@ -1,0 +1,12 @@
+[2026-01-18 10:15:23.456] INFO: Application started successfully
+[2026-01-18 10:15:24.123] DEBUG: Loading configuration from config.json
+[2026-01-18 10:15:24.456] INFO: Database connection established
+[2026-01-18 10:15:25.789] DEBUG: Initializing thread pool with 8 workers
+[2026-01-18 10:15:26.234] INFO: HTTP server listening on port 8080
+[2026-01-18 10:15:27.567] WARN: Memory usage above 70%
+[2026-01-18 10:15:28.890] INFO: Received request from 192.168.1.100 GET /api/users
+[2026-01-18 10:15:29.123] DEBUG: Processing user authentication
+[2026-01-18 10:15:29.456] INFO: User authenticated successfully
+[2026-01-18 10:15:30.789] ERROR: Failed to connect to cache server at redis://cache.example.com:6379
+[2026-01-18 10:15:31.234] WARN: Using in-memory cache as fallback
+[2026-01-18 10:15:32.567] DEBUG: Query timeout set to 5000ms

@@ -3,6 +3,8 @@ out/
 *.vsix
 .DS_Store
 *.log
+!asset/test_log_file/*.log
+# keep test logs under asset/test_log_file for CI/tests
 dist/
 build/
 __pycache__/

@@ -64,7 +64,7 @@
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
-    "package": "npm run compile && npx @vscode/vsce package",
+    "package": "npm run compile && node -e \"require('fs').mkdirSync('build',{recursive:true})\" && npx @vscode/vsce package --out build/smart-log-viewer.vsix",
     "publish": "npm run compile && npx @vscode/vsce publish",
     "publish:patch": "npm run compile && npx @vscode/vsce publish patch",
     "publish:minor": "npm run compile && npx @vscode/vsce publish minor",

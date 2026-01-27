@@ -1,0 +1,110 @@
+2026-01-18 22:29:07 - [__main__] - INFO - 日志文件已创建: f:\code\2026\20260116_talk_assistant\test2\logs\assistant.log
+2026-01-18 22:29:07 - [__main__] - INFO - === 语音助手启动 ===
+2026-01-18 22:29:07 - [__main__] - INFO - 使用音频源: microphone
+2026-01-18 22:29:07 - [__main__] - INFO - 配置: SpeechConfig(appid='6a0b00c0', api_key='b6c3fd72062e6db1e8d7e32d9437732d', api_secret='NTQ2OTFkM2VhOTkxYjNmYTYyZDk3MGFk', audio_source='microphone', audio_file=None, audio_mode='microphone', num_samples=640, min_speech_duration=2.0, silence_threshold=0.5, max_silence_tolerance=10.0, siliconflow_api_key='sk-pamlwvfdfgrdqlzrsrcoqbajamonqgzkawdotsdqpzfrivgf', llm_model='Qwen/Qwen3-8B', audio_energy_threshold=0.02, vad_frame_duration=30, enable_logging=True, log_level='INFO')
+2026-01-18 22:29:07 - [speech_assistant] - INFO - 语音助手初始化完成: SpeechConfig(appid='6a0b00c0', api_key='b6c3fd72062e6db1e8d7e32d9437732d', api_secret='NTQ2OTFkM2VhOTkxYjNmYTYyZDk3MGFk', audio_source='microphone', audio_file=None, audio_mode='microphone', num_samples=640, min_speech_duration=2.0, silence_threshold=0.5, max_silence_tolerance=10.0, siliconflow_api_key='sk-pamlwvfdfgrdqlzrsrcoqbajamonqgzkawdotsdqpzfrivgf', llm_model='Qwen/Qwen3-8B', audio_energy_threshold=0.02, vad_frame_duration=30, enable_logging=True, log_level='INFO')
+2026-01-18 22:29:07 - [speech_assistant] - DEBUG - === 语音助手已启动 ===
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - AsyncWSClient初始化 - 麦克风模式（采样数640）, 帧时长: 0.040秒, 发送间隔: 0.04秒
+2026-01-18 22:29:07 - [speech_assistant] - INFO - 启动音频采集任务（独立生命周期，持续运行）...
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [连接 #1] 正在建立 WebSocket连接... (当前队列: 0 帧)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AudioProducer] - DEBUG - 初始化麦克风采集... (采样数: 640)
+2026-01-18 22:29:07 - [AudioProducer] - DEBUG - 可用音频设备:
+2026-01-18 22:29:07 - [AudioProducer] - DEBUG -   设备 0: Microsoft 声音映射器 - Input
+2026-01-18 22:29:07 - [AudioProducer] - DEBUG -   设备 1: 麦克风阵列 (Realtek(R) Audio)
+2026-01-18 22:29:07 - [AudioProducer] - DEBUG -   设备 2: 立体声混音 (Realtek(R) Audio)
+2026-01-18 22:29:07 - [AudioProducer] - DEBUG -   设备 3: Microsoft 声音映射器 - Output
+2026-01-18 22:29:07 - [AudioProducer] - DEBUG -   设备 4: 扬声器 (Realtek(R) Audio)
+2026-01-18 22:29:07 - [AudioProducer] - DEBUG -   设备 5: 主声音捕获驱动程序
+2026-01-18 22:29:07 - [AudioProducer] - DEBUG -   设备 6: 麦克风阵列 (Realtek(R) Audio)
+2026-01-18 22:29:07 - [AudioProducer] - DEBUG -   设备 7: 立体声混音 (Realtek(R) Audio)
+2026-01-18 22:29:07 - [AudioProducer] - DEBUG -   设备 8: 主声音驱动程序
+2026-01-18 22:29:07 - [AudioProducer] - DEBUG -   设备 9: 扬声器 (Realtek(R) Audio)
+2026-01-18 22:29:07 - [AudioProducer] - DEBUG -   设备 10: 扬声器 (Realtek(R) Audio)
+2026-01-18 22:29:07 - [AudioProducer] - DEBUG -   设备 11: 麦克风阵列 (Realtek(R) Audio)
+2026-01-18 22:29:07 - [AudioProducer] - DEBUG -   设备 12: 立体声混音 (Realtek(R) Audio)
+2026-01-18 22:29:07 - [AudioProducer] - DEBUG -   设备 13: 麦克风 (Realtek HD Audio Mic input)
+2026-01-18 22:29:07 - [AudioProducer] - DEBUG -   设备 14: Headphones 1 (Realtek HD Audio 2nd output with SST)
+2026-01-18 22:29:07 - [AudioProducer] - DEBUG -   设备 15: Headphones 2 (Realtek HD Audio 2nd output with SST)
+2026-01-18 22:29:07 - [AudioProducer] - DEBUG -   设备 16: 电脑扬声器 (Realtek HD Audio 2nd output with SST)
+2026-01-18 22:29:07 - [AudioProducer] - DEBUG -   设备 17: Speakers 1 (Realtek HD Audio output with SST)
+2026-01-18 22:29:07 - [AudioProducer] - DEBUG -   设备 18: Speakers 2 (Realtek HD Audio output with SST)
+2026-01-18 22:29:07 - [AudioProducer] - DEBUG -   设备 19: 电脑扬声器 (Realtek HD Audio output with SST)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AsyncWSClient] - WARNING - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AsyncWSClient] - WARNING - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AsyncWSClient] - WARNING - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AsyncWSClient] - WARNING - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AsyncWSClient] - WARNING - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AsyncWSClient] - WARNING - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AsyncWSClient] - WARNING - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AsyncWSClient] - WARNING - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AsyncWSClient] - WARNING - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AsyncWSClient] - WARNING - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AsyncWSClient] - WARNING - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AsyncWSClient] - WARNING - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AsyncWSClient] - WARNING - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AsyncWSClient] - WARNING - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AsyncWSClient] - WARNING - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AsyncWSClient] - WARNING - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AsyncWSClient] - WARNING - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AsyncWSClient] - WARNING - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AudioProducer] - INFO - AudioProducer初始化 - 模式: microphone, 采样数: 640, 帧大小: 1280字节, VAD: 禁用
+2026-01-18 22:29:07 - [AsyncWSClient] - DEBUG - [音频采集] 开始采集 (模式: microphone)
+2026-01-18 22:29:07 - [AsyncWSClient] - WARNING - [音频采集] 开始采集 (模式: microphone)

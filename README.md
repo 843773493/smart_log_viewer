@@ -5,6 +5,7 @@
 ## 功能特性
 
 ✨ **核心功能**
+
 - 📂 打开和查看 `.log` 文件
 - 🔍 支持正则表达式过滤日志
 - 🔄 实时监控文件变化，自动更新显示
@@ -15,7 +16,7 @@
 
 ## 项目结构
 
-```
+```text
 smart_log_viewer/
 ├── src/                          # TypeScript源代码
 │   ├── extension.ts              # 主扩展入口
@@ -82,13 +83,15 @@ vsce package
 ### 过滤日志
 
 #### 基本过滤
-```
+
+```text
 输入: ERROR|WARN|alert
 效果: 只显示包含ERROR、WARN或alert的行
 ```
 
 #### 高级正则表达式
-```
+
+```text
 # 显示特定时间范围的日志
 ^\d{4}-01-1[0-8]
 
@@ -107,12 +110,14 @@ Exception|error|failed
 ### 配置持久化
 
 插件会自动保存每个日志文件的配置：
+
 - 过滤正则表达式
 - 高亮和反向过滤选项
 
 再次打开同一个文件时，之前的设置会被自动恢复。
 
 配置文件存储位置：
+
 - **Windows**: `%APPDATA%\Code\User\globalStorage\smart-log-viewer\log-configs\`
 - **macOS**: `~/Library/Application Support/Code/User/globalStorage/smart-log-viewer/log-configs/`
 - **Linux**: `~/.config/Code/User/globalStorage/smart-log-viewer/log-configs/`
@@ -120,22 +125,25 @@ Exception|error|failed
 ## 技术架构
 
 ### 前端 (TypeScript + WebView)
+
 - 使用VSCode WebView API提供自定义编辑器UI
 - 响应式设计，支持暗色主题
 
 ### 后端 (Python)
+
 - 轻量级HTTP服务器（Python内置http.server）
 - 正则表达式过滤引擎
 - 支持大文件处理
 
 ### 通信协议
+
 - 前后端通过HTTP JSON进行通信
 - 扩展自动管理Python进程生命周期
 
 ## 键盘快捷键
 
 | 快捷键 | 功能 |
-|--------|------|
+| -------- | ------ |
 | `Ctrl+S` / `Cmd+S` | 导出当前过滤后的日志 |
 | `Ctrl+Shift+P` > "Clear Log Filter" | 清空过滤器 |
 | `Ctrl+Shift+P` > "Save Log Configuration" | 手动保存配置 |
@@ -143,15 +151,19 @@ Exception|error|failed
 ## 常见问题
 
 ### Q: Python环境找不到？
+
 **A:** 确保Python已安装并在系统PATH中。你可以在终端输入 `python --version` 检查。
 
 ### Q: 大文件处理性能如何？
+
 **A:** 支持GB级别的日志文件。处理性能取决于系统硬件和正则表达式复杂度。
 
 ### Q: 能否保存过滤后的内容？
+
 **A:** 支持。按 `Ctrl+S` (Windows/Linux) 或 `Cmd+S` (macOS) 导出过滤后的日志。
 
 ### Q: 支持哪些日志格式？
+
 **A:** 纯文本格式。自动检测并高亮常见日志级别（ERROR、WARN、INFO、DEBUG）。
 
 ## 开发调试
@@ -161,6 +173,7 @@ Exception|error|failed
 后端服务默认运行在 `http://localhost:5555`
 
 测试过滤功能：
+
 ```bash
 curl -X POST http://localhost:5555/filter \
   -H "Content-Type: application/json" \
@@ -186,6 +199,7 @@ python -m unittest test_backend.py -v
 ## 扩展思路
 
 可以添加的功能：
+
 - 📈 日志统计和可视化图表
 - 🔐 支持加密日志文件
 - 📤 导出到多种格式（CSV、JSON等）
@@ -204,6 +218,7 @@ MIT
 ## 更新日志
 
 ### v0.0.1 (2026-01-18)
+
 - 初始版本发布
 - 实现核心过滤功能
 - 完成文件监控和配置持久化

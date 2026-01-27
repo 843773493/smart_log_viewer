@@ -67,7 +67,7 @@ export class ConfigManager {
 			invertFilterRegex: '',
 			highlightMatches: false,
 			highlightRegex: '',
-			controlsPanelCollapsed: false,
+			controlsPanelCollapsed: true,
 			virtualScrollEnabled: true,
 			itemHeight: 20,
 			bufferSize: 10,

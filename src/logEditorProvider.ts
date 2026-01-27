@@ -47,11 +47,9 @@ export class LogEditorProvider implements vscode.CustomTextEditorProvider {
 				config: config
 			});
 			
-			// 如果有保存的配置，自动应用
-			if (config.filterRegex || config.invertFilterRegex || config.highlightRegex) {
-				const document_text = document.getText();
-				this.updateWebviewContentWithMultipleFilters(filePath, document_text, config);
-			}
+			// 无论是否有过滤规则，默认显示全部内容（若有保存的规则会被应用）
+			const document_text = document.getText();
+			this.updateWebviewContentWithMultipleFilters(filePath, document_text, config);
 		}, 500);
 
 		// 监听WebView消息
