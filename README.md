@@ -14,65 +14,6 @@
 - 🟡 自动色彩编码（ERROR、WARN、INFO、DEBUG）
 - 📊 实时显示日志统计信息
 
-## 项目结构
-
-```text
-smart_log_viewer/
-├── src/                          # TypeScript源代码
-│   ├── extension.ts              # 主扩展入口
-│   ├── logEditorProvider.ts       # 日志编辑器提供者（核心UI）
-│   ├── configManager.ts           # 配置文件管理
-│   └── pythonBackendManager.ts    # Python后端进程管理
-├── media/                         # 前端资源
-│   ├── main.js                    # WebView交互脚本
-│   └── style.css                  # UI样式表
-├── python/                        # Python后端
-│   ├── backend.py                 # HTTP服务器和日志处理引擎
-│   └── test_backend.py            # 后端单元测试
-├── .vscode/                       # VSCode调试配置
-├── package.json                   # Node依赖和扩展配置
-├── tsconfig.json                  # TypeScript配置
-└── README.md                      # 本文件
-```
-
-## 快速开始
-
-### 前置要求
-
-- **Node.js** 14.0 或更高版本
-- **Python** 3.7 或更高版本
-- **VSCode** 1.75.0 或更高版本
-
-### 安装步骤
-
-#### 1. 安装Node依赖
-
-```bash
-cd smart_log_viewer
-npm install
-```
-
-#### 2. 编译TypeScript
-
-```bash
-npm run compile
-```
-
-#### 3. 启动调试模式
-
-在VSCode中按 `F5` 启动扩展，或者：
-
-```bash
-npm run watch    # 监视模式，自动编译
-```
-
-### 打包扩展
-
-```bash
-npm install -g @vscode/vsce
-vsce package
-```
-
 ## 使用指南
 
 ### 打开日志文件
@@ -122,24 +63,6 @@ Exception|error|failed
 - **macOS**: `~/Library/Application Support/Code/User/globalStorage/smart-log-viewer/log-configs/`
 - **Linux**: `~/.config/Code/User/globalStorage/smart-log-viewer/log-configs/`
 
-## 技术架构
-
-### 前端 (TypeScript + WebView)
-
-- 使用VSCode WebView API提供自定义编辑器UI
-- 响应式设计，支持暗色主题
-
-### 后端 (Python)
-
-- 轻量级HTTP服务器（Python内置http.server）
-- 正则表达式过滤引擎
-- 支持大文件处理
-
-### 通信协议
-
-- 前后端通过HTTP JSON进行通信
-- 扩展自动管理Python进程生命周期
-
 ## 键盘快捷键
 
 | 快捷键 | 功能 |
@@ -166,32 +89,6 @@ Exception|error|failed
 
 **A:** 纯文本格式。自动检测并高亮常见日志级别（ERROR、WARN、INFO、DEBUG）。
 
-## 开发调试
-
-### 调试Python后端
-
-后端服务默认运行在 `http://localhost:5555`
-
-测试过滤功能：
-
-```bash
-curl -X POST http://localhost:5555/filter \
-  -H "Content-Type: application/json" \
-  -d '{
-    "content": "ERROR: test\nINFO: ok",
-    "filter_regex": "ERROR",
-    "invert_filter": false,
-    "highlight_matches": true
-  }'
-```
-
-### 运行后端单元测试
-
-```bash
-cd python
-python -m unittest test_backend.py -v
-```
-
 ### 调试WebView
 
 在WebView中按 `F12` 打开开发者工具。
@@ -214,11 +111,3 @@ MIT
 ## 贡献
 
 欢迎提交Issue和Pull Request！
-
-## 更新日志
-
-### v0.0.1 (2026-01-18)
-
-- 初始版本发布
-- 实现核心过滤功能
-- 完成文件监控和配置持久化

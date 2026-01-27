@@ -1,0 +1,21 @@
+[2026-01-19 10:00:00] INFO: 应用启动成功
+[2026-01-19 10:00:01] DEBUG: 这是一条很长很长很长很长很长很长很长很长很长的DEBUG日志行，用来测试长行折叠功能是否正常工作
+[2026-01-19 10:00:02] WARN: 警告：系统资源使用率较高，请检查
+[2026-01-19 10:00:03] ERROR: 错误：数据库连接失败，正在进行重试操作
+[2026-01-19 10:00:04] INFO: 连接到服务器 192.168.1.1:8080 成功
+[2026-01-19 10:00:05] DEBUG: 另一条非常非常非常非常非常长的日志行，包含大量的调试信息和堆栈跟踪信息，需要显示在多行中以便阅读
+[2026-01-19 10:00:06] INFO: 处理请求：GET /api/users?page=1&limit=100&sort=id&filter=active&format=json&timestamp=1234567890
+[2026-01-19 10:00:07] WARN: 缓存命中率过低，当前命中率为 25%，建议增加缓存大小或检查缓存策略
+[2026-01-19 10:00:08] ERROR: 处理异常：com.example.exception.ServiceException: 服务内部错误，请稍后重试或联系管理员
+[2026-01-19 10:00:09] INFO: 日志文件大小：1024 KB，已处理行数：1000，处理速度：100 lines/sec
+[2026-01-19 10:00:10] DEBUG: 执行SQL查询：SELECT * FROM users WHERE status='active' AND created_date > '2026-01-01' ORDER BY id DESC LIMIT 100 OFFSET 0
+[2026-01-19 10:00:09] INFO: 日志文件大小：1024 KB，已处理行数：1000，处理速度：100 lines/sec
+[2026-01-19 10:00:10] DEBUG: 执行SQL查询：SELECT * FROM users WHERE status='active' AND created_date > '2026-01-01' ORDER BY id DESC LIMIT 100 OFFSET 0
+[2026-01-19 10:00:09] INFO: 日志文件大小：1024 KB，已处理行数：1000，处理速度：100 lines/sec
+[2026-01-19 10:00:10] DEBUG: 执行SQL查询：SELECT * FROM users WHERE status='active' AND created_date > '2026-01-01' ORDER BY id DESC LIMIT 100 OFFSET 0
+[2026-01-19 10:00:10] DEBUG: 执行SQL查询：SELECT * FROM users WHERE status='active' AND created_date > '2026-01-01' ORDER BY id DESC LIMIT 100 OFFSET 0
+[2026-01-19 10:00:09] INFO: 日志文件大小：1024 KB，已处理行数：1000，处理速度：100 lines/sec
+[2026-01-19 10:00:10] DEBUG: 执行SQL查询：SELECT * FROM users WHERE status='active' AND created_date > '2026-01-01' ORDER BY id DESC LIMIT 100 OFFSET 0
+[2026-01-19 10:00:10] DEBUG: 执行SQL查询：SELECT * FROM users WHERE status='active' AND created_date > '2026-01-01' ORDER BY id DESC LIMIT 100 OFFSET 0
+[2026-01-19 10:00:09] INFO: 日志文件大小：1024 KB，已处理行数：1000，处理速度：100 lines/sec
+[2026-01-19 10:00:10] DEBUG: 执行SQL查询：SELECT * FROM users WHERE status='active' AND created_date > '2026-01-01' ORDER BY id DESC LIMIT 100 OFFSET 0
