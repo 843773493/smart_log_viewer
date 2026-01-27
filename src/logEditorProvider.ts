@@ -129,7 +129,13 @@ export class LogEditorProvider implements vscode.CustomTextEditorProvider {
 	<div class="container">
 		<div class="controls">
 			<div class="controls-header">
-				<h3>📋 日志过滤设置</h3>
+				<div class="header-left">
+					<h3>📋 日志过滤设置</h3>
+					<div class="header-actions">
+						<button id="applyFilter" class="small">应用过滤</button>
+						<button id="clearFilter" class="small">清空所有</button>
+					</div>
+				</div>
 				<button id="toggleControls" class="toggle-btn">▼</button>
 			</div>
 			<div class="controls-content">
@@ -164,10 +170,7 @@ export class LogEditorProvider implements vscode.CustomTextEditorProvider {
 						<input type="number" id="visibleLines" min="10" max="100" value="30">
 					</div>
 				</div>
-				<div class="button-group">
-					<button id="applyFilter">应用过滤</button>
-					<button id="clearFilter">清空所有</button>
-				</div>
+				<!-- Buttons moved to header (header-actions) -->
 			</div>
 			<div class="info-section">
 				<span id="logStats"></span>
